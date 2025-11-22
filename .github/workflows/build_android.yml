@@ -3,23 +3,25 @@ name: Reusable Android Build
 on:
   workflow_call:
     inputs:
-      ref:
-        required: false
+      build_type:
+        required: true
         type: string
-        default: main
+      metamask_environment:
+        required: true
+        type: string
 
 jobs:
   build-android:
     runs-on: ubuntu-latest
 
     env:
+      BUILD_TYPE: ${{ inputs.build_type }}
+      METAMASK_ENV: ${{ inputs.metamask_environment }}
       JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -44,8 +46,9 @@ jobs:
       - name: Accept licenses
         run: yes | sdkmanager --licenses
 
-      # Génération d'une clé Android temporaire
+      # --- Génération d'une clé de signature temporaire ---
       - name: Generate temporary keystore
+        working-directory: android
         run: |
           keytool -genkeypair \
             -alias temp-key \
@@ -56,22 +59,24 @@ jobs:
             -storepass tempPass123 \
             -keypass tempPass123 \
             -dname "CN=Temporary,O=Build,C=US"
-        working-directory: android
 
-      - name: Move keystore into app folder
+      - name: Move keystore to app
         run: mv temp.keystore app/temp.keystore
         working-directory: android
 
       - name: Add signing config
+        working-directory: android
         run: |
           echo "
           MYAPP_STORE_FILE=temp.keystore
           MYAPP_KEY_ALIAS=temp-key
           MYAPP_STORE_PASSWORD=tempPass123
           MYAPP_KEY_PASSWORD=tempPass123
+          BUILD_TYPE=${BUILD_TYPE}
+          METAMASK_ENV=${METAMASK_ENV}
           " >> app/gradle.properties
-        working-directory: android
 
+      # --- Build APK ---
       - name: Build APK
         working-directory: android
         run: ./gradlew assembleRelease
