@@ -9,5 +9,5 @@ jobs:
   build:
     uses: ./.github/workflows/build_android.yml
     with:
-      build_type: Release
-      metamask_environment: qa
+      build-type: Release
+      metamask-environment: qa
