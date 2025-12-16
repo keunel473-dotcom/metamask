@@ -55,6 +55,10 @@ jobs:
       - name: Patch react-native-os for Gradle 8+
         run: |
           sed -i 's/^\s*compile /implementation /' node_modules/react-native-os/android/build.gradle
+
+      - name: Patch react-native-payments compileSdkVersion
+        run: |
+          sed -i 's/compileSdkVersion [0-9]\+/compileSdkVersion 33/' node_modules/react-native-payments/android/build.gradle || true
     
       - name: Build Android
         env:
