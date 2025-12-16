@@ -40,7 +40,14 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-
+        
+      - name: Patch react-native-aes-crypto-forked for Gradle 8+
+        run: |
+    
+          sed -i 's/^\s*compile /implementation /' node_modules/react-native-aes-crypto-forked/android/build.gradle
+    
+          sed -i 's/com.android.support:appcompat-v7:23.0.1/androidx.appcompat:appcompat:1.6.1/' node_modules/react-native-aes-crypto-forked/android/build.gradle
+    
       - name: Build Android
         env:
           METAMASK_ENVIRONMENT: ${{ inputs.metamask-environment }}
