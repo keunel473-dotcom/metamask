@@ -51,6 +51,10 @@ jobs:
       - name: Patch react-native-i18n for Gradle 8+
         run: |
           sed -i 's/^\s*compile /implementation /' node_modules/react-native-i18n/android/build.gradle
+
+      - name: Patch react-native-os for Gradle 8+
+        run: |
+          sed -i 's/^\s*compile /implementation /' node_modules/react-native-os/android/build.gradle
     
       - name: Build Android
         env:
